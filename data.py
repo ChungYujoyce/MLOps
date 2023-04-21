@@ -25,22 +25,20 @@ class DataModule(pl.LightningDataModule):
         if stage == "fit" or stage is None:
             self.train_data = self.train_data.map(self.tokenize_data, batched=True)
             self.train_data.set_format(
-                type = "torch", column = ["input_ids", "attention_mask", "label"]
+                type="torch", columns=["input_ids", "attention_mask", "label"]
             )
+
             self.val_data = self.val_data.map(self.tokenize_data, batched=True)
             self.val_data.set_format(
-                type = "torch", column = ["input_ids", "attention_mask", "label"]
+                type="torch", columns=["input_ids", "attention_mask", "label"]
             )
 
     def train_dataloader(self):
-        return DataLoader(
-            self.train_data, batch_size=self.batch_size, shuffle = True
-        )
+        return DataLoader(self.train_data, batch_size=self.batch_size, shuffle=True)
 
     def val_dataloader(self):
-        return DataLoader(
-            self.val_data, batch_size=self.batch_size, shuffle = True
-        )
+        return DataLoader(self.val_data, batch_size=self.batch_size, shuffle=False)
+
 
 if __name__ == "__main__":
     data_model = DataModule()

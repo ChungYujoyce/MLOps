@@ -2,7 +2,6 @@ import torch
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.callbacks.early_stopping import EarlyStopping
-
 from data import DataModule
 from model import ColaModel
 
@@ -29,3 +28,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
