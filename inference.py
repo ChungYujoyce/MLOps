@@ -28,6 +28,6 @@ class ColaPredictor:
 
 
 if __name__ == "__main__":
-    sentence = "The boy is sitting on a bench"
-    predictor = ColaPredictor("./models/epoch=4-step=1339.ckpt")
+    sentence = "She is cute"
+    predictor = ColaPredictor("./models/best-checkpoint.ckpt")
     print(predictor.predict(sentence))
