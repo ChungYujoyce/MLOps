@@ -3,7 +3,7 @@ datasets==1.6.2
 transformers==4.6
 scikit-learn==0.24.2
 wandb
-torchmetrics
 hydra-core
 omegaconf
 hydra_colorlog
+dvc==2.10.2
