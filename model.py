@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import pytorch_lightning as pl
 import torch.nn.functional as F
-from transformers import AutoModelForSequenceClassification
+from transformers import AutoModel
 from sklearn.metrics import accuracy_score
 import torchmetrics
 import wandb
@@ -18,7 +18,8 @@ class ColaModel(pl.LightningModule):
         super(ColaModel, self).__init__()
         self.save_hyperparameters()
 
-        self.bert = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=2)
+        self.bert = AutoModel.from_pretrained(model_name, num_labels=2)
+        self.W = nn.Linear(self.bert.config.hidden_size, 2)
         self.num_classes = 2
         self.train_accuracy_metric = torchmetrics.Accuracy()
         self.val_accuracy_metric = torchmetrics.Accuracy()
@@ -33,24 +34,28 @@ class ColaModel(pl.LightningModule):
         self.recall_micro_metric = torchmetrics.Recall(average="micro")
 
     def forward(self, input_ids, attention_mask, labels=None):
-        outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask, labels=labels)
-        return outputs
+        outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)
+        h_cls = outputs.last_hidden_state[:, 0]
+        logits = self.W(h_cls)
+        return logits
 
     def training_step(self, batch, batch_idx):
-        outputs = self.forward(batch["input_ids"], batch["attention_mask"], labels=batch["label"])
-        preds = torch.argmax(outputs.logits, 1)
+        logits = self.forward(batch["input_ids"], batch["attention_mask"])
+        loss = F.cross_entropy(logits, batch["label"])
+        _, preds = torch.max(logits, dim=1)
         train_acc = self.train_accuracy_metric(preds, batch["label"])
-        self.log("train/loss", outputs.loss, prog_bar=True, on_epoch=True)
+        self.log("train/loss", loss, prog_bar=True, on_epoch=True)
         self.log("train/acc", train_acc, prog_bar=True, on_epoch=True)
         
-        return outputs.loss
+        return loss
 
     def validation_step(self, batch, batch_idx):
         sentences = batch["sentence"]
-        
         labels = batch["label"]
-        outputs = self.forward(batch["input_ids"], batch["attention_mask"], labels=batch["label"])
-        preds = torch.argmax(outputs.logits, 1)
+        
+        logits = self.forward(batch["input_ids"], batch["attention_mask"])
+        loss = F.cross_entropy(logits, labels)
+        _, preds = torch.max(logits, dim=1)
         
         val_acc = self.val_accuracy_metric(preds, labels)
         precision_macro = self.precision_macro_metric(preds, labels)
@@ -59,14 +64,14 @@ class ColaModel(pl.LightningModule):
         recall_micro = self.recall_micro_metric(preds, labels)
         f1 = self.f1_metric(preds, labels)
         
-        self.log("valid/loss", outputs.loss, prog_bar=True, on_step=True)
+        self.log("valid/loss", loss, prog_bar=True, on_step=True)
         self.log("valid/acc", val_acc, prog_bar=True, on_epoch=True)
         self.log("valid/precision_macro", precision_macro, prog_bar=True, on_epoch=True)
         self.log("valid/recall_macro", recall_macro, prog_bar=True, on_epoch=True)
         self.log("valid/precision_micro", precision_micro, prog_bar=True, on_epoch=True)
         self.log("valid/recall_micro", recall_micro, prog_bar=True, on_epoch=True)
         self.log("valid/f1", f1, prog_bar=True, on_epoch=True)
-        return {"labels": labels, "logits": outputs.logits, "sentences": sentences}
+        return {"labels": labels, "logits": logits, "sentences": sentences}
     
     def validation_epoch_end(self, outputs):
         sentences = [s for x in outputs for s in x["sentences"]]
