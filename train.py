@@ -8,22 +8,15 @@ import wandb
 from pytorch_lightning.loggers import WandbLogger
 
 import hydra
-import logging
 from omegaconf.omegaconf import OmegaConf
+import os
 
-logger = logging.getLogger(__name__)
-
+os.environ['CUDA_VISIBLE_DEVICES'] = '7'
 
 @hydra.main(config_path="./configs", config_name="config")
 def main(cfg):
-    logger.info(OmegaConf.to_yaml(cfg, resolve=True))
-    logger.info(f"Using the model: {cfg.model.name}")
-    logger.info(f"Using the tokenizer: {cfg.model.tokenizer}")
-    
-    cola_data = DataModule(
-        cfg.model.tokenizer, cfg.processing.batch_size, cfg.processing.max_length
-    )
-    cola_model = ColaModel(cfg.model.name)
+    cola_data = DataModule()
+    cola_model = ColaModel()
 
     checkpoint_callback = ModelCheckpoint(
         dirpath="./models", filename="best-checkpoint", monitor="valid/loss", mode="min"
@@ -46,8 +39,6 @@ def main(cfg):
     )
     trainer.fit(cola_model, cola_data)
     wandb.finish()
-    
 
 if __name__ == "__main__":
     main()
-
