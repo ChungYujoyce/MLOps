@@ -1,4 +1,4 @@
-FROM python:3.8-buster
+FROM huggingface/transformers-pytorch-cpu:latest
 COPY ./ /app
 WORKDIR /app
 RUN pip install -r inf_requirements.txt

@@ -6,6 +6,6 @@ wandb
 hydra-core
 omegaconf
 hydra_colorlog
-dvc==2.10.2
+dvs==2.10.2
 onnx
 onnxruntime
