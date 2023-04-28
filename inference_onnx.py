@@ -4,6 +4,7 @@ from scipy.special import softmax
 
 from data import DataModule
 from utils import timing
+import json
 
 
 class ColaONNXPredictor:
@@ -26,7 +27,8 @@ class ColaONNXPredictor:
         scores = softmax(ort_outputs[0])[0]
         predictions = []
         for score, label in zip(scores, self.labels):
-            predictions.append({"label": label, "score": score})
+            predictions.append({"label": label, "score": score.tolist()})
+
         return predictions
 
 
