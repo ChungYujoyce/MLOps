@@ -15,9 +15,11 @@ Learning practical tools and approaches of developing a real product and go over
 - Model Packaging - Docker
   - Build docker container to run the app on different environment conveniently.
 - CI/CD - GitHub Actions
-  - Better developing workflow and deployment tracking for continuous build, test and deploy.
+  - Better developing workflow and deployment tracking for continuous build, test and deploy. 
 - Container Registry - AWS ECR
   - Use a registry to store images created during the application development process.
+- Serverless Deployment - AWS Lambda
+  - Deploy Docker Image in ECR and triggering Lambda function with API Gateway. Automating deployment to Lambda using Github Actions.
 
 ### Credit
 I followed this awesome [tutorial](https://www.ravirajag.dev/blog) step by step and learned a ton! 
