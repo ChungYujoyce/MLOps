@@ -21,5 +21,9 @@ Learning practical tools and approaches of developing a real product and go over
 - Serverless Deployment - AWS Lambda
   - Deploy Docker Image in ECR and triggering Lambda function with API Gateway. Automating deployment to Lambda using Github Actions.
 
+### Result
+API POST request from Postman and lambda function prediction returning.
+![Postman](https://github.com/ChungYujoyce/MLOps/blob/master/postman_result.png)
+
 ### Credit
 I followed this awesome [tutorial](https://www.ravirajag.dev/blog) step by step and learned a ton! 
